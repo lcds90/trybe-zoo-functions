@@ -57,11 +57,12 @@ function calculateEntry(entrants) {
 }
 
 function getAnimalMap(options) {
-  /* if(!options){
+  if (!options) {
     return data.species.reduce((acc, current) => {
-      acc.
-    }, []);
-  } */
+      acc[current.location] = [acc.name, current.name];
+      return acc;
+    }, {});
+  }
 }
 
 function getSchedule(dayName) {
@@ -73,7 +74,14 @@ function getOldestFromFirstSpecies(id) {
 }
 
 function increasePrices(percentage) {
-  // seu código aqui
+  data.prices.Adult = ((percentage / 100) * data.prices.Adult) + data.prices.Adult;
+  data.prices.Child = ((percentage / 100) * data.prices.Child) + data.prices.Child;
+  data.prices.Senior = ((percentage / 100) * data.prices.Senior) + data.prices.Senior;
+  // Arrendondar valor float apos calculo
+  data.prices.Adult = Math.round(data.prices.Adult * 100) / 100;
+  data.prices.Child = Math.round(data.prices.Child * 100) / 100;
+  data.prices.Senior = Math.round(data.prices.Senior * 100) / 100;
+  return data.prices;
 }
 
 function getEmployeeCoverage(idOrName) {
