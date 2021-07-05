@@ -118,18 +118,9 @@ function getSchedule(dayName) {
 function getOldestFromFirstSpecies(id) {
   const employeeFound = data.employees.find((employee) => employee.id === id);
   const animalId = employeeFound.responsibleFor[0];
-  const animals = data.species.find((specie) => specie.id === animalId);
-  let higher = [];
-  animals.residents.forEach((animal) => {
-    if (!higher.length) {
-      higher.push(animal.name, animal.sex, animal.age);
-    }
-    if (animal.age > higher[2]) {
-      higher = [];
-      higher.push(animal.name, animal.sex, animal.age);
-    }
-  });
-  return higher;
+  const firstSpecie = data.species.find((specie) => specie.id === animalId);
+  const oldest = firstSpecie.residents.sort((a, b) => b.age - a.age);
+  return Object.values(oldest[0]);
 }
 
 function increasePrices(percentage) {
@@ -144,8 +135,18 @@ function increasePrices(percentage) {
 }
 
 function getEmployeeCoverage(idOrName) {
-  // seu código aqui
+  if (!idOrName) {
+    const list = data.employees.map((employee) => [`${employee.firstName} ${employee.lastName}`,
+      employee.responsibleFor]);
+    return list.map((item) => item[1].map((specieId) => {
+      console.log(specieId);
+      const species = data.species.find((specie) => specieId === specie.id);
+      return species;
+    }));
+  }
 }
+
+console.log(getEmployeeCoverage());
 
 module.exports = {
   calculateEntry,
