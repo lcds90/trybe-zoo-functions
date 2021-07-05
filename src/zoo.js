@@ -37,7 +37,7 @@ function addEmployee(id, firstName, lastName, managers, responsibleFor) {
 }
 
 function countAnimals(species) {
-  const allAnimals = species.reduce((acc, current) => {
+  const allAnimals = data.species.reduce((acc, current) => {
     acc[current.name] = current.residents.length;
 
     return acc;
@@ -57,7 +57,11 @@ function calculateEntry(entrants) {
 }
 
 function getAnimalMap(options) {
-  // seu código aqui
+  /* if(!options){
+    return data.species.reduce((acc, current) => {
+      acc.
+    }, []);
+  } */
 }
 
 function getSchedule(dayName) {
