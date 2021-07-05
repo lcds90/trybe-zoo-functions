@@ -90,12 +90,12 @@ function getAnimalMap(options = {}) {
 
   return getAllAnimals(includeNames, sorted, sex);
 }
-
+/*
 console.log(
   getAnimalMap({
     includeNames: true,
   }),
-);
+); */
 
 function getSchedule(dayName) {
   const result = Object.entries(data.hours).reduce((acc, hours) => {
@@ -116,7 +116,20 @@ function getSchedule(dayName) {
 }
 
 function getOldestFromFirstSpecies(id) {
-  // seu código aqui
+  const employeeFound = data.employees.find((employee) => employee.id === id);
+  const animalId = employeeFound.responsibleFor[0];
+  const animals = data.species.find((specie) => specie.id === animalId);
+  let higher = [];
+  animals.residents.forEach((animal) => {
+    if (!higher.length) {
+      higher.push(animal.name, animal.sex, animal.age);
+    }
+    if (animal.age > higher[2]) {
+      higher = [];
+      higher.push(animal.name, animal.sex, animal.age);
+    }
+  });
+  return higher;
 }
 
 function increasePrices(percentage) {
