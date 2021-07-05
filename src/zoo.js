@@ -56,17 +56,63 @@ function calculateEntry(entrants) {
   + (Senior * data.prices.Senior);
 }
 
-function getAnimalMap(options) {
-  if (!options) {
-    return data.species.reduce((acc, current) => {
-      acc[current.location] = [acc.name, current.name];
+function getAllAnimalsDefault() {
+  return data.species.reduce((acc, current, index, array) => {
+    const { name, location } = current;
+    if (!acc[location]) acc[location] = [];
+    acc[location].push(name);
+    return acc;
+  }, {});
+}
+
+function getAllAnimals(includedNames, sorted, sex) {
+  if (includedNames) {
+    const result = data.species.reduce((acc, current, index, array) => {
+      const { name, location } = current;
+      if (!acc[location]) acc[location] = [];
+      acc[location].push({
+        [name]: current.residents.map((animal) => animal.name),
+      });
       return acc;
     }, {});
+
+    return result;
   }
 }
 
+function getAnimalMap(options = {}) {
+  const { includeNames, sorted, sex } = options;
+  const result = getAllAnimalsDefault();
+  // Sem parametros
+  if (!Object.keys(options).length) {
+    return result;
+  }
+
+  return getAllAnimals(includeNames, sorted, sex);
+}
+
+console.log(
+  getAnimalMap({
+    includeNames: true,
+  }),
+);
+
 function getSchedule(dayName) {
-  // seu código aqui
+  const result = Object.entries(data.hours).reduce((acc, hours) => {
+    const day = hours[0];
+    const { open } = hours[1];
+    let { close } = hours[1];
+    close = close % 12 || 12;
+    acc[day] = `Open from ${open}am until ${close}pm`;
+    if ([open, close].includes(0)) acc[day] = 'CLOSED';
+    return acc;
+  }, {});
+  if (dayName) {
+    return {
+      [Object.keys(result).find((day) => day === dayName)]: result[dayName],
+    };
+  }
+  return result;
 }
 
 function getOldestFromFirstSpecies(id) {
