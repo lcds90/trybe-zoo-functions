@@ -86,8 +86,7 @@ function retrieveAnimalsPerLocationWithName(locations, sorted, sex) {
 function retrieveAnimalsPerLocation(locations) {
   const animalsPerLocation = {};
   locations.forEach((location) => {
-    const filteredAnimals = data.species
-      .filter((animal) => animal.location === location)
+    const filteredAnimals = retrieveFilteredAnimalsPerLocation(location)
       .map((animal) => animal.name);
     if (filteredAnimals.length !== 0) animalsPerLocation[location] = filteredAnimals;
   });
@@ -144,15 +143,34 @@ function increasePrices(percentage) {
   });
 }
 
+function getEmployeesAnimalsNameList(id) {
+  const animalFound = data.species.find((animal) => animal.id === id);
+  return animalFound.name;
+}
+
+function searchForParam(param) {
+  const employee = data.employees.find((em) => [em.id, em.firstName, em.lastName].includes(param));
+  const fullName = `${employee.firstName} ${employee.lastName}`;
+  const getAnimals = employee.responsibleFor
+    .map((animal) => getEmployeesAnimalsNameList(animal));
+  return { [fullName]: getAnimals };
+}
+
+function getEmployeesList() {
+  const list = data.employees.reduce((acc, currentEmployee) => {
+    const fullName = `${currentEmployee.firstName} ${currentEmployee.lastName}`;
+    const getAnimals = currentEmployee.responsibleFor
+      .map((animal) => getEmployeesAnimalsNameList(animal));
+    acc[fullName] = getAnimals;
+    return acc;
+  }, {});
+  return list;
+}
+
 function getEmployeeCoverage(idOrName) {
-  if (!idOrName) {
-    const list = data.employees.map((employee) => [`${employee.firstName} ${employee.lastName}`,
-      employee.responsibleFor]);
-    return list.map((item) => item[1].map((specieId) => {
-      const species = data.species.find((specie) => specieId === specie.id);
-      return species;
-    }));
-  }
+  const list = getEmployeesList();
+  if (!idOrName) return list;
+  return searchForParam(idOrName);
 }
 
 module.exports = {
