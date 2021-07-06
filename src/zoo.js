@@ -56,46 +56,58 @@ function calculateEntry(entrants) {
   + (Senior * data.prices.Senior);
 }
 
-function getAllAnimalsDefault() {
-  return data.species.reduce((acc, current, index, array) => {
-    const { name, location } = current;
-    if (!acc[location]) acc[location] = [];
-    acc[location].push(name);
-    return acc;
-  }, {});
+// LINK https://files.slack.com/files-pri/TMDDFEPFU-F01DPDJ9XQQ/zoom_0.mp4
+// NOTE Refatorei algumas codigos com complexidade para entendimento.
+
+function retrieveResidentsFromAnimalAndFilter(residents, sex) {
+  return residents.filter((resident) => (sex !== undefined ? resident.sex === sex : true))
+    .map((resident) => resident.name);
 }
 
-function getAllAnimals(includedNames, sorted, sex) {
-  if (includedNames) {
-    const result = data.species.reduce((acc, current, index, array) => {
-      const { name, location } = current;
-      if (!acc[location]) acc[location] = [];
-      acc[location].push({
-        [name]: current.residents.map((animal) => animal.name),
-      });
-      return acc;
-    }, {});
+function retrieveFilteredAnimalsPerLocation(location) {
+  return data.species
+    .filter((animal) => animal.location === location);
+}
 
-    return result;
-  }
+function retrieveAnimalsPerLocationWithName(locations, sorted, sex) {
+  const animalsPerLocation = {};
+  locations.forEach((location) => {
+    const filteredAnimals = retrieveFilteredAnimalsPerLocation(location)
+      .map((animal) => {
+        const residents = retrieveResidentsFromAnimalAndFilter(animal.residents, sex);
+        if (sorted) residents.sort();
+        return { [animal.name]: residents };
+      });
+    if (filteredAnimals.length !== 0) animalsPerLocation[location] = filteredAnimals;
+  });
+  return animalsPerLocation;
+}
+
+function retrieveAnimalsPerLocation(locations) {
+  const animalsPerLocation = {};
+  locations.forEach((location) => {
+    const filteredAnimals = data.species
+      .filter((animal) => animal.location === location)
+      .map((animal) => animal.name);
+    if (filteredAnimals.length !== 0) animalsPerLocation[location] = filteredAnimals;
+  });
+  return animalsPerLocation;
+}
+
+function retrieveLocations() {
+  return data.species.map((specie) => specie.location);
 }
 
 function getAnimalMap(options = {}) {
-  const { includeNames, sorted, sex } = options;
-  const result = getAllAnimalsDefault();
-  // Sem parametros
-  if (!Object.keys(options).length) {
-    return result;
-  }
+  const locations = retrieveLocations();
+  if (!options) return retrieveAnimalsPerLocation(locations);
 
-  return getAllAnimals(includeNames, sorted, sex);
+  const { includeNames = false, sorted = false, sex } = options;
+  if (includeNames) {
+    return retrieveAnimalsPerLocationWithName(locations, sorted, sex);
+  }
+  return retrieveAnimalsPerLocation(locations);
 }
-/*
-console.log(
-  getAnimalMap({
-    includeNames: true,
-  }),
-); */
 
 function getSchedule(dayName) {
   const result = Object.entries(data.hours).reduce((acc, hours) => {
@@ -139,14 +151,11 @@ function getEmployeeCoverage(idOrName) {
     const list = data.employees.map((employee) => [`${employee.firstName} ${employee.lastName}`,
       employee.responsibleFor]);
     return list.map((item) => item[1].map((specieId) => {
-      console.log(specieId);
       const species = data.species.find((specie) => specieId === specie.id);
       return species;
     }));
   }
 }
-
-console.log(getEmployeeCoverage());
 
 module.exports = {
   calculateEntry,
