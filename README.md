@@ -19,6 +19,6 @@ Repositório possuí projeto desenvolvido no período que estive na <b>Trybe</b>
 
 ### 🖥 Módulo - Fundamentos do Desenvolvimento Web
 
-Este projeto foi desenvolvido durante o módulo de fundamentos desenvolvimento web na trybe, referente ao bloco 05.
+Este projeto foi desenvolvido durante o módulo de fundamentos desenvolvimento web na trybe, referente ao bloco 08.
 
 [Consulte o repositório completo](https://github.com/lcds90/trybe-course).
