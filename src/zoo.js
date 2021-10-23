@@ -1,29 +1,21 @@
-const data = require('./data');
+const { employees, species, hours, prices } = require('./data');
 
-function getSpeciesByIds(...ids) {
-  if (!ids) return [];
-  return data.species.filter((specie) => ids.includes(specie.id));
-}
+const getSpeciesByIds = (...ids) => species.filter((specie) => ids.includes(specie.id));
 
-function getAnimalsOlderThan(animal, age) {
-  const olderAnimals = data.species.find((specie) => specie.name === animal);
-  const areAllOlderThanAge = olderAnimals.residents.every((specie) => specie.age > age);
-  return areAllOlderThanAge;
-}
+const getAnimalsOlderThan = (animal, age) => species
+  .find((s) => s.name === animal).residents
+  .every((s) => s.age > age);
 
-function getEmployeeByName(employeeName) {
+const getEmployeeByName = (employeeName) => {
   if (!employeeName) return {};
-  return data.employees
-    .find((employee) => employee.firstName === employeeName || employee.lastName === employeeName);
-}
+  return employees
+    .find((employee) => [employee.firstName, employee.lastName]
+      .includes(employeeName));
+};
 
-function createEmployee(personalInfo, associatedWith) {
-  return { ...personalInfo, ...associatedWith };
-}
+const createEmployee = (personalInfo, associatedWith) => ({ ...personalInfo, ...associatedWith });
 
-function isManager(id) {
-  return data.employees.some((employee) => employee.managers.includes(id));
-}
+const isManager = (id) => employees.some((employee) => employee.managers.includes(id));
 
 function addEmployee(id, firstName, lastName, managers, responsibleFor) {
   const employee = {
@@ -33,27 +25,26 @@ function addEmployee(id, firstName, lastName, managers, responsibleFor) {
     managers: managers || [],
     responsibleFor: responsibleFor || [],
   };
-  data.employees.push(employee);
+  employees.push(employee);
 }
 
-function countAnimals(species) {
-  const allAnimals = data.species.reduce((acc, current) => {
+function countAnimals(speciesName) {
+  const allAnimals = species.reduce((acc, current) => {
     acc[current.name] = current.residents.length;
-
     return acc;
   }, {});
 
-  if (!species) return allAnimals;
+  if (!speciesName) return allAnimals;
 
-  return allAnimals[species];
+  return allAnimals[speciesName];
 }
 
 function calculateEntry(entrants) {
   if (!entrants || Object.keys(entrants).length === 0) return 0;
   const { Adult = 0, Child = 0, Senior = 0 } = entrants;
-  return (Adult * data.prices.Adult)
-  + (Child * data.prices.Child)
-  + (Senior * data.prices.Senior);
+  return (Adult * prices.Adult)
+  + (Child * prices.Child)
+  + (Senior * prices.Senior);
 }
 
 // LINK https://files.slack.com/files-pri/TMDDFEPFU-F01DPDJ9XQQ/zoom_0.mp4
@@ -65,7 +56,7 @@ function retrieveResidentsFromAnimalAndFilter(residents, sex) {
 }
 
 function retrieveFilteredAnimalsPerLocation(location) {
-  return data.species
+  return species
     .filter((animal) => animal.location === location);
 }
 
@@ -94,7 +85,7 @@ function retrieveAnimalsPerLocation(locations) {
 }
 
 function retrieveLocations() {
-  return data.species.map((specie) => specie.location);
+  return species.map((specie) => specie.location);
 }
 
 function getAnimalMap(options = {}) {
@@ -109,10 +100,10 @@ function getAnimalMap(options = {}) {
 }
 
 function getSchedule(dayName) {
-  const result = Object.entries(data.hours).reduce((acc, hours) => {
-    const day = hours[0];
-    const { open } = hours[1];
-    let { close } = hours[1];
+  const result = Object.entries(hours).reduce((acc, hour) => {
+    const day = hour[0];
+    const { open } = hour[1];
+    let { close } = hour[1];
     close = close % 12 || 12;
     acc[day] = `Open from ${open}am until ${close}pm`;
     if ([open, close].includes(0)) acc[day] = 'CLOSED';
@@ -127,29 +118,29 @@ function getSchedule(dayName) {
 }
 
 function getOldestFromFirstSpecies(id) {
-  const employeeFound = data.employees.find((employee) => employee.id === id);
+  const employeeFound = employees.find((employee) => employee.id === id);
   const animalId = employeeFound.responsibleFor[0];
-  const firstSpecie = data.species.find((specie) => specie.id === animalId);
+  const firstSpecie = species.find((specie) => specie.id === animalId);
   const oldest = firstSpecie.residents.sort((a, b) => b.age - a.age);
   return Object.values(oldest[0]);
 }
 
 function increasePrices(percentage) {
-  const keys = Object.keys(data.prices);
+  const keys = Object.keys(prices);
 
   keys.forEach((key) => {
-    data.prices[key] = ((percentage / 100) * data.prices[key]) + data.prices[key];
-    data.prices[key] = Math.round(data.prices[key] * 100) / 100;
+    prices[key] = ((percentage / 100) * prices[key]) + prices[key];
+    prices[key] = Math.round(prices[key] * 100) / 100;
   });
 }
 
 function getEmployeesAnimalsNameList(id) {
-  const animalFound = data.species.find((animal) => animal.id === id);
+  const animalFound = species.find((animal) => animal.id === id);
   return animalFound.name;
 }
 
 function searchForParam(param) {
-  const employee = data.employees.find((em) => [em.id, em.firstName, em.lastName].includes(param));
+  const employee = employees.find((em) => [em.id, em.firstName, em.lastName].includes(param));
   const fullName = `${employee.firstName} ${employee.lastName}`;
   const getAnimals = employee.responsibleFor
     .map((animal) => getEmployeesAnimalsNameList(animal));
@@ -157,7 +148,7 @@ function searchForParam(param) {
 }
 
 function getEmployeesList() {
-  const list = data.employees.reduce((acc, currentEmployee) => {
+  const list = employees.reduce((acc, currentEmployee) => {
     const fullName = `${currentEmployee.firstName} ${currentEmployee.lastName}`;
     const getAnimals = currentEmployee.responsibleFor
       .map((animal) => getEmployeesAnimalsNameList(animal));
@@ -168,8 +159,7 @@ function getEmployeesList() {
 }
 
 function getEmployeeCoverage(idOrName) {
-  const list = getEmployeesList();
-  if (!idOrName) return list;
+  if (!idOrName) return getEmployeesList();
   return searchForParam(idOrName);
 }
 
