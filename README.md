@@ -1,6 +1,6 @@
  <div align=center>
 
-# 🟢 Trybe - [Pixels Art](https://trybe-pixels-art.vercel.app/) 🟢
+# 🟢 Trybe - Zoo Functions 🟢
 
 Repositório possuí projeto desenvolvido no período que estive na <b>Trybe</b>, abordando sobre conceitos do Javascript utilizando as novas funcionalidades do ES6, utilização de _Higher Order Functions_ e interpretação de testes unitários e produzir soluções que atendam a eles.
 
